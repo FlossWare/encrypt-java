@@ -1,0 +1,73 @@
+name: Build and Deploy JEncrypt
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build and Test
+        run: mvn clean test
+
+      - name: Package
+        run: mvn package -DskipTests
+
+      - name: Deploy to packagecloud.io
+        run: |
+          mvn deploy:deploy-file \
+            -Dfile=target/jencrypt-*.jar \
+            -DrepositoryId=packagecloud-flossware \
+            -Durl=https://packagecloud.io/flossware/java/maven2/ \
+            -DpomFile=pom.xml \
+            -Dpackaging=jar
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
+      - name: Auto-increment version
+        run: |
+          # Extract current version from pom.xml
+          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Current version: $CURRENT_VERSION"
+
+          # Split version into major and minor (format: X.Y)
+          IFS='.' read -r MAJOR MINOR <<< "$CURRENT_VERSION"
+
+          # Increment minor version
+          NEW_MINOR=$((MINOR + 1))
+          NEW_VERSION="${MAJOR}.${NEW_MINOR}"
+          echo "New version: $NEW_VERSION"
+
+          # Update pom.xml with new version
+          mvn versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false
+
+          # Configure git
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Commit and push version bump
+          git add pom.xml
+          git commit -m "Automated Version Bump ${NEW_VERSION} [ci skip]"
+          git push
