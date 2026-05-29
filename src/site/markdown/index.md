@@ -22,7 +22,7 @@ FlossWare jencrypt - Production-quality Java library.
 ```xml
 <dependency>
     <groupId>org.flossware</groupId>
-    <artifactId>jencrypt</artifactId>
+    <artifactId>encrypt-java</artifactId>
     <version><!-- see releases --></version>
 </dependency>
 ```

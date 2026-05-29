@@ -2,7 +2,7 @@
 <project name="jencrypt">
     <bannerLeft>
         <name>jencrypt</name>
-        <href>https://github.com/FlossWare/jencrypt</href>
+        <href>https://github.com/FlossWare/encrypt-java</href>
     </bannerLeft>
 
     <publishDate position="right"/>
@@ -10,8 +10,8 @@
 
     <body>
         <links>
-            <item name="GitHub" href="https://github.com/FlossWare/jencrypt"/>
-            <item name="Issues" href="https://github.com/FlossWare/jencrypt/issues"/>
+            <item name="GitHub" href="https://github.com/FlossWare/encrypt-java"/>
+            <item name="Issues" href="https://github.com/FlossWare/encrypt-java/issues"/>
         </links>
 
         <menu name="Documentation">
