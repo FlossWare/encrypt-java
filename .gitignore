@@ -34,3 +34,4 @@ jacoco.exec
 # Test output
 *.tmp
 *.temp
+.claude
